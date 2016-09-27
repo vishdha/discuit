@@ -12,4 +12,12 @@ def get_context(context):
         })
     context.threads = thread_post_count
     context.nocache = 1
+
+
+
+    post  = frappe.get_doc('Post', frappe.form_dict.post)
+
+
+
+    context.doc = post
     return context
