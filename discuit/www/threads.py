@@ -11,7 +11,7 @@ def get_context(context):
 			"thread_title": i.th_thread_title
 		})
 	context.threads = thread_post_count
-	context.nocache = 1
+	context.no_cache = 1
 	return context
 
 
@@ -21,17 +21,17 @@ def create_thread(thread_title, thread_categories):
     thread = frappe.new_doc('Thread')
     thread.th_thread_title = thread_title
     thread.th_categories = thread_categories
-    thread.insert()
+    thread.save()
     frappe.db.commit()
 
     return "Thread {tid} added.".format(tid=thread.name)
 
-@frappe.whitelist()
-def update_thread(thread_id, thread_title, thread_categories):
-    #return "Thread Edited: {t}; {tt}; {fc}".format(t=thread_id, tt=thread_title, fc=thread_categories)
-    thread = frappe.get_doc('Thread', thread_id)
-    thread.th_thread_title = thread_title
-    thread.th_categories = thread_categories
-    thread.save()
-    frappe.db.commit()
-    #return {'title': thread.th_thread_title, 'categories': thread.th_categories }
+# @frappe.whitelist()
+# def update_thread(thread_id, thread_title, thread_categories):
+#     #return "Thread Edited: {t}; {tt}; {fc}".format(t=thread_id, tt=thread_title, fc=thread_categories)
+#     thread = frappe.get_doc('Thread', thread_id)
+#     thread.th_thread_title = thread_title
+#     thread.th_categories = thread_categories
+#     thread.save()
+#     frappe.db.commit()
+#     #return {'title': thread.th_thread_title, 'categories': thread.th_categories }

@@ -10,7 +10,7 @@
       <div class="input-group">
         <input type="text" placeholder="Search forums" class="form-control">
         <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Search</button>
+          <button class="btn btn-default" type="button" style="height:34px !important; margin-top: -5px;">Search</button>
         </span>
       </div>
     </div>
@@ -44,10 +44,11 @@
 </div>
 <hr>
 
-{% for thread in threads %}
+
+{% macro render_thread(thread, rowindex) %}
 <div class="row">
   <div class="col-md-10">
-    <h4><a href="/thread/thread={{ thread.thread_title }}">{{ thread.thread_title }}</a></h4>
+    <h4><a href="/thread1?thread={{ thread.thread_title }}">{{ thread.thread_title }}</a></h4>
     <ul class="list-inline">
       <li class="list-inline-item">
         <div class="label label-info">FIPS</div>
@@ -71,36 +72,31 @@
   </div>
 </div>
 <hr>
-{% endfor %}
+{% endmacro %}
+
+<div id="threads-parent">
+  <div id="threads">
+    {% set threadindex = 0 %}
+    {% for thread in threads %}
+        {% set threadindex = threadindex + 1 %}
+        {{ render_thread(thread, threadindex) }}
+    {% endfor %}
+    {% if not threads %}
+      <br>
+      <div class="text-center text-muted">
+        <h4>No Threads have been added yet.</h4>
+        <i class="mega-octicon octicon-telescope"></i>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
 <script type="text/javascript">
 
-  frappe.ready(function() {
 
+frappe.ready(function() {
 
-    //Prepare datepickers for all date inputs. (web_form.html)
-    //frappe.require("assets/frappe/js/mnt.js");
-
-    function wireup_datepickers() {
-      $("[data-fieldtype='Date']").each(function() {
-        mnt.init_datepicker($(this));
-      });
-    }
-
-    wireup_datepickers();
-
-
-   // function setup_main_filter_selectize() {
-   //      var params = document.URL.split('?')[1];
-   //      var params_json = JSON.parse('{"' + decodeURI(params).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
-   //      if (params_json["categories"]!=null) {
-   //        //$('#filters-selectize')[0].selectize.setValue(params_json["categories"].split("+")); //Forum Category Delimiter
-   //        return params_json["categories"].split("+")
-   //      }
-   //  }
-
-
-
-    function get_categories_and_init_selectize(inputcontrolname, locked=false, init_value=null) {
+ /*   function get_categories_and_init_selectize(inputcontrolname, locked=false, init_value=null) {
       frappe.call({
         method: "acumen_erpnext.www.acumen_forums.get_forum_categories",
         callback: function(r){
@@ -124,12 +120,12 @@
       });
     }
 
-
+*/
 
     //Initialize selectize for filter textbox.
-//    get_categories_and_init_selectize('#filters-selectize');
-      categories_from_url = mnt.get_url_param('categories');
-      get_categories_and_init_selectize('#filters-selectize', false, categories_from_url);
+    //    get_categories_and_init_selectize('#filters-selectize');
+      /*categories_from_url = mnt.get_url_param('categories');
+      get_categories_and_init_selectize('#filters-selectize', false, categories_from_url);*/
 
 
     // function wireup_selectize_thread_categories() {
@@ -142,154 +138,141 @@
     // wireup_selectize_thread_categories();
 
 
-    function toggle_buttons_edit_thread(threadname, editmode) {
-        var btn_edit_thread = $('#' + threadname + '-edit-thread');
-        var btn_save_thread = $('#' + threadname + '-save-thread');
-        var btn_cancel_edit_thread = $('#' + threadname + '-cancel-edit-thread');
-
-        if(editmode == 1) {
-            btn_edit_thread.addClass('hide');
-            btn_save_thread.removeClass('hide'); btn_cancel_edit_thread.removeClass('hide');
-        } else {
-            btn_edit_thread.removeClass('hide');
-            btn_save_thread.addClass('hide'); btn_cancel_edit_thread.addClass('hide');
-        }
-    }
 
 
      //Add selectize to Thread Categories textbox.
-    $('.page_content').on('click', '#open-new-thread', function() {
+  /*  $('.page_content').on('click', '#open-new-thread', function() {
        get_categories_and_init_selectize('#new-thread-categories');
-    });
+    });*/
 
     //Handler for Create Thread button
     $('#create-thread').click(function(event) {
-        var title = $('#new-thread-title').val();
-        var categories = $('#new-thread-categories').val();
-
+        var title = $('#new-thread-title')
+        var categories = $('#new-thread-categories')
         frappe.call({
-            method: "acumen_erpnext.www.acumen_forums.create_thread",
+            method: "discuit.www.threads.create_thread",
             args: {
-                    "thread_title": title,
-                    "thread_categories": categories
+                    "thread_title": title.val(),
+                    "thread_categories": categories.val(),
             },
             freeze: true,
             freeze_message: __("Creating thread..."),
             callback: function(r){
-                if(!r.exc) {
-                    //frappe.msgprint(__(r.message));
-                    //refresh_threads();
+            if(!r.exc) {
+              title.val("");
+              // mnt.refresh_page_element('#threads-parent #threads', 1, undefined);
+              // mnt.refresh_page_element('#threads', 0, undefined);
+              // mnt.refresh_page_element('#threads-parent #threads', 0, undefined);
+              // mnt.refresh_page_element('#threads-parent #threads', 1, undefined);
+              // mnt.refresh_page_element('#threads-parent #threads', 1, undefined);
 
-                    $('#newthread').removeClass('in'); //to collapse container.collapse();
+              mnt.refresh_page_element('#threads-parent #threads', 1, undefined);
 
-            mnt.refresh_page_element('#threads-parent #threads', 1, function() {
-              wireup_datepickers();
-            });
-
-            mnt.show_alert(__("New thread " + title + " added."), 5);
-                } else {
-                    frappe.msgprint(__("Thread was not created. <br /> " + r.exc));
-                }
+              // $('#threads-outer #threads').fadeOut();
+              // $('#threads-outer #threads').parent().load(document.URL + '#threads-outer #threads', function(){
+              //   $('#threads-outer #threads').fadeIn();
+              // });
+              mnt.show_alert('Thread added');
+            } else {
+              frappe.msgprint(__("Thread was not created. <br /> " + r.exc));
             }
+          }
         });
     });
 
-    //$('button[data-role="edit-thread"]').click(function(event) {
-    $('#threads-parent').on('click', '[id$="edit-thread"]', function() {
-        var threadname = $(this).attr('data-thread-key'); //Get context of Thread.
+    // //$('button[data-role="edit-thread"]').click(function(event) {
+    // $('#threads-parent').on('click', '[id$="edit-thread"]', function() {
+    //   var threadname = $(this).attr('data-thread-key'); //Get context of Thread.
 
-        //frappe.msgprint(threadname);
-        var span_thread_text = $('#' + threadname + '-text');
-        var input_thread_text = $('#' + threadname + '-input-text');
-        var input_thread_categories = $('#' + threadname + '-input-categories');
-      var div_thread_categories = $('#' + threadname + '-categories');
+    //   //frappe.msgprint(threadname);
+    //   var span_thread_text = $('#' + threadname + '-text');
+    //   var input_thread_text = $('#' + threadname + '-input-text');
+    //   var input_thread_categories = $('#' + threadname + '-input-categories');
+    //   var div_thread_categories = $('#' + threadname + '-categories');
 
-      span_thread_text.addClass("hide");
-      input_thread_text.removeClass("hide");
-      div_thread_categories.addClass("hide");
-      input_thread_categories.parent().removeClass('hide')
+    //   span_thread_text.addClass("hide");
+    //   input_thread_text.removeClass("hide");
+    //   div_thread_categories.addClass("hide");
+    //   input_thread_categories.parent().removeClass('hide')
 
-      //Set values in Selectize input from labels.
-      label_categories = [];
-      $('div[id="' + threadname + '-categories"] span').each(function () {
-        var slug = $(this).attr('data-slug');
-        label_categories.push(slug);
-      });
+    //   //Set values in Selectize input from labels.
+    //   label_categories = [];
+    //   $('div[id="' + threadname + '-categories"] span').each(function () {
+    //     var slug = $(this).attr('data-slug');
+    //     label_categories.push(slug);
+    //   });
 
-      get_categories_and_init_selectize('#' + input_thread_categories.attr("id"), false, label_categories);
-      //input_thread_categories[0].selectize.unlock();
+    //   get_categories_and_init_selectize('#' + input_thread_categories.attr("id"), false, label_categories);
+    //   //input_thread_categories[0].selectize.unlock();
 
-      //input_thread_categories[0].selectize.setValue(value_selectize);
+    //   //input_thread_categories[0].selectize.setValue(value_selectize);
 
-      input_thread_categories.parent().removeClass('hide');
+    //   input_thread_categories.parent().removeClass('hide');
 
-      toggle_buttons_edit_thread(threadname, 1);
+    //   toggle_buttons_edit_thread(threadname, 1);
 
-    });
+    // });
 
-    //$('button[data-role="edit-thread"]').click(function(event) {
-    $('#threads-parent').on('click', '[id$="save-thread"]', function() {
-        var threadname = $(this).attr('data-thread-key'); //Get context of Thread.
+    // //$('button[data-role="edit-thread"]').click(function(event) {
+    // $('#threads-parent').on('click', '[id$="save-thread"]', function() {
+    //   var threadname = $(this).attr('data-thread-key'); //Get context of Thread.
+    //   var span_thread_text = $('#' + threadname + '-text');
+    //   var input_thread_text = $('#' + threadname + '-input-text');
+    //   var input_thread_categories = $('#' + threadname + '-input-categories');
+    //   var div_thread_categories = $('#' + threadname + '-categories');
 
-        var span_thread_text = $('#' + threadname + '-text');
-        var input_thread_text = $('#' + threadname + '-input-text');
-        var input_thread_categories = $('#' + threadname + '-input-categories');
-      var div_thread_categories = $('#' + threadname + '-categories');
+    //   frappe.call({
+    //       method: "acumen_erpnext.www.acumen_forums.update_thread",
+    //       args: {
+    //               "thread_id": threadname,
+    //               "thread_title": input_thread_text.val(),
+    //               "thread_categories": input_thread_categories.val()
+    //       },
+    //       freeze: true,
+    //       freeze_message: __("Updating thread..."),
+    //       callback: function(r){
+    //           if(!r.exc) {
+    //               span_thread_text.removeClass('hide');
+    //         input_thread_text.addClass('hide');
 
-      //input_thread_categories[0].selectize.lock();
+    //       input_thread_categories.parent().addClass('hide');
+    //       div_thread_categories.removeClass('hide');
 
-        frappe.call({
-            method: "acumen_erpnext.www.acumen_forums.update_thread",
-            args: {
-                    "thread_id": threadname,
-                    "thread_title": input_thread_text.val(),
-                    "thread_categories": input_thread_categories.val()
-            },
-            freeze: true,
-            freeze_message: __("Updating thread..."),
-            callback: function(r){
-                if(!r.exc) {
-                    span_thread_text.removeClass('hide');
-              input_thread_text.addClass('hide');
-
-            input_thread_categories.parent().addClass('hide');
-            div_thread_categories.removeClass('hide');
-
-                    toggle_buttons_edit_thread(threadname, 0);
+    //               toggle_buttons_edit_thread(threadname, 0);
 
 
-            mnt.refresh_page_element('#threads #' + threadname + '-text');
-            mnt.refresh_page_element('#threads #' + threadname + '-categories');
-                    // $('#threads #' + threadname + '-text').fadeOut();
-                    // $('#threads #' + threadname + '-text').parent().load(document.URL +  '#threads #' + threadname + '-text', function() {
-                    //  $('#threads #' + threadname + '-text').fadeIn();
-                    // });
+    //       mnt.refresh_page_element('#threads #' + threadname + '-text');
+    //       mnt.refresh_page_element('#threads #' + threadname + '-categories');
+    //               // $('#threads #' + threadname + '-text').fadeOut();
+    //               // $('#threads #' + threadname + '-text').parent().load(document.URL +  '#threads #' + threadname + '-text', function() {
+    //               //  $('#threads #' + threadname + '-text').fadeIn();
+    //               // });
 
-                } else {
-                    frappe.msgprint(__("Thread was not updated. <br /> " + r.exc));
-                }
-            }
-        });
-    });
+    //           } else {
+    //               frappe.msgprint(__("Thread was not updated. <br /> " + r.exc));
+    //           }
+    //       }
+    //   });
+    // });
 
-    $('#threads-parent').on('click', '[id$="cancel-edit-thread"]', function() {
-        var threadname = $(this).attr('data-thread-key'); //Get context of Thread.
-        //toggle_inputcontrols_edit_thread(threadname, 0);
+    // $('#threads-parent').on('click', '[id$="cancel-edit-thread"]', function() {
+    //     var threadname = $(this).attr('data-thread-key'); //Get context of Thread.
+    //     //toggle_inputcontrols_edit_thread(threadname, 0);
 
-        var span_thread_text = $('#' + threadname + '-text');
-        var input_thread_text = $('#' + threadname + '-input-text');
-        var input_thread_categories = $('#' + threadname + '-input-categories');
-      var div_thread_categories = $('#' + threadname + '-categories');
+    //     var span_thread_text = $('#' + threadname + '-text');
+    //     var input_thread_text = $('#' + threadname + '-input-text');
+    //     var input_thread_categories = $('#' + threadname + '-input-categories');
+    //     var div_thread_categories = $('#' + threadname + '-categories');
 
-      //input_thread_categories[0].selectize.lock();
+    //     //input_thread_categories[0].selectize.lock();
 
-        span_thread_text.removeClass('hide');
-        input_thread_text.addClass('hide');
-        input_thread_categories.parent().addClass('hide');
-      div_thread_categories.removeClass('hide');
+    //     span_thread_text.removeClass('hide');
+    //     input_thread_text.addClass('hide');
+    //     input_thread_categories.parent().addClass('hide');
+    //     div_thread_categories.removeClass('hide');
 
-        toggle_buttons_edit_thread(threadname, 0);
-    });
+    //     toggle_buttons_edit_thread(threadname, 0);
+    // });
 
 
 });
