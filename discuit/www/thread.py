@@ -14,7 +14,7 @@ def get_context(context):
         })
     context.threads = thread_post_count
     context.no_cache = 1
-    context.thread = frappe.get_all("Thread", frappe.form_dict.thread.th_thread_title)
-    context.posts = frappe.get_all('Post', filters={"pst_thread":frappe.form_dict.thread}, fields=["*"  ])
+    context.thread = frappe.get_doc("Thread", frappe.form_dict.thread)
+    context.posts = frappe.get_all('Post', filters={"pst_thread":frappe.form_dict.thread}, fields=["*"])
 
     return context
