@@ -16,7 +16,7 @@ install:
   # - wget https://raw.githubusercontent.com/frappe/bench/master/install_scripts/setup_frappe.sh
   # - sudo bash setup_frappe.sh --skip-setup-bench --mysql-root-password travis --bench-branch develop
   # wget https://raw.githubusercontent.com/frappe/bench/master/playbooks/install.py
-  - sudo python install.py --develop --user travis --without-bench-setup
+  #- sudo python install.py --develop --user travis --without-bench-setup
   - sudo pip install -e ~/bench
 
   # - sudo pip install --upgrade pip
