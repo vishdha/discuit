@@ -51,10 +51,15 @@
     <h4><a href="/thread?thread={{ thread.name }}">{{ thread.thread_title }}</a></h4>
     <ul class="list-inline">
       <li class="list-inline-item">
-        <div class="label label-info">FIPS</div>
-      </li>
-      <li class="list-inline-item">
-        <div class="label label-info">FIPS 140</div>
+        <div>
+          {% for category in thread.thread_category.split('+') %}
+            {% if category  %}
+                <span class="label label-info">
+                {{ frappe.db.get_value('Forum Category',filters={'category_slug': category},fieldname = 'category_name') }}
+                </span> &nbsp;
+            {% endif %}
+          {% endfor %}
+        </div>
       </li>
     </ul>
   </div>

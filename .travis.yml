@@ -27,7 +27,7 @@ install:
 script:
   - cd ~/frappe-bench
   - bench get-app discuit $TRAVIS_BUILD_DIR
-  - bench use test_site
+  - bench use test_acerp
   - bench reinstall --yes
   - bench build
   - bench start &
