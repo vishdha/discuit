@@ -10,25 +10,24 @@ services:
 before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  - sudo required
 
 install:
   - sudo apt-get purge -y mysql-common mysql-server mysql-client
   # - wget https://raw.githubusercontent.com/frappe/bench/master/install_scripts/setup_frappe.sh
   # - sudo bash setup_frappe.sh --skip-setup-bench --mysql-root-password travis --bench-branch develop
-  # - wget https://raw.githubusercontent.com/frappe/bench/master/playbooks/install.py
+  # wget https://raw.githubusercontent.com/frappe/bench/master/playbooks/install.py
   - sudo python install.py --develop --user travis --without-bench-setup
   - sudo pip install -e ~/bench
 
   # - sudo pip install --upgrade pip
-   - rm $TRAVIS_BUILD_DIR/.git/shallow
-   - bash $TRAVIS_BUILD_DIR/travis/bench_init.sh
+  - rm $TRAVIS_BUILD_DIR/.git/shallow
+  - bash $TRAVIS_BUILD_DIR/travis/bench_init.sh
   # - cp -r $TRAVIS_BUILD_DIR/test_sites/test_site ~/frappe-bench/sites/
 
 script:
   - cd ~/frappe-bench
   - bench get-app discuit $TRAVIS_BUILD_DIR
-  - bench use test_acerp
+  - bench use test_site
   - bench reinstall --yes
   - bench build
   - bench start &
